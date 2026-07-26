@@ -96,7 +96,7 @@ const Dashboard = ({ user, token }) => {
         </div>
 
         {userEmail && (
-          <div>
+          <div style={{ marginBottom: '1.25rem' }}>
             <label style={{ fontSize: '0.75rem', color: 'var(--text-dim)', textTransform: 'uppercase', fontWeight: 600 }}>
               Email Address
             </label>
