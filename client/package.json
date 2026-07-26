@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "open": "powershell -Command \"Start-Process 'http://localhost:3000/dashboard'\"",
     "build": "vite build",
     "preview": "vite preview"
   },

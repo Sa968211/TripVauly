@@ -25,12 +25,9 @@ const userSchema = new mongoose.Schema(
       minlength: [6, 'Password must be at least 6 characters long'],
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-// Method to strip sensitive fields when converting to JSON
 userSchema.methods.toJSON = function () {
   const user = this.toObject();
   delete user.password;

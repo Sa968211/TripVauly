@@ -6,16 +6,13 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const { protect } = require('../middleware/authMiddleware');
 
-// In-Memory Fallback Storage
 const inMemoryUsers = new Map();
 
-// Helper for strict email format validation
 const isValidEmail = (email) => {
   const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
   return emailRegex.test(String(email).toLowerCase());
 };
 
-// Helper to generate JWT Token
 const generateToken = (id) => {
   return jwt.sign(
     { id: id.toString() },
@@ -24,14 +21,10 @@ const generateToken = (id) => {
   );
 };
 
-// @route   POST /api/auth/register
-// @desc    Register a new user
-// @access  Public
 router.post('/register', async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Validation
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
@@ -41,7 +34,6 @@ router.post('/register', async (req, res) => {
 
     const cleanEmail = String(email).toLowerCase().trim();
 
-    // Strict Email Format Check
     if (!isValidEmail(cleanEmail)) {
       return res.status(400).json({
         success: false,
@@ -135,9 +127,6 @@ router.post('/register', async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/login
-// @desc    Authenticate user & get token
-// @access  Public
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -151,7 +140,6 @@ router.post('/login', async (req, res) => {
 
     const cleanEmail = String(email).toLowerCase().trim();
 
-    // Strict Email Format Check
     if (!isValidEmail(cleanEmail)) {
       return res.status(400).json({
         success: false,
@@ -232,9 +220,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// @route   GET /api/auth/me
-// @desc    Get logged in user profile
-// @access  Private (Protected)
 router.get('/me', protect, async (req, res) => {
   try {
     if (req.user) {

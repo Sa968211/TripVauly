@@ -4,10 +4,7 @@ import axios from 'axios';
 import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const Login = ({ onAuthSuccess }) => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -20,10 +17,7 @@ const Login = ({ onAuthSuccess }) => {
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
     setError('');
   };
 
@@ -54,14 +48,10 @@ const Login = ({ onAuthSuccess }) => {
         localStorage.setItem('token', token);
         onAuthSuccess(token, response.data.user);
 
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 800);
+        setTimeout(() => navigate('/dashboard'), 800);
       }
     } catch (err) {
-      console.error('Login error:', err);
-      const message = err.response?.data?.message || 'Invalid email or password.';
-      setError(message);
+      setError(err.response?.data?.message || 'Invalid email or password.');
     } finally {
       setLoading(false);
     }
@@ -135,14 +125,7 @@ const Login = ({ onAuthSuccess }) => {
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ marginTop: '1rem' }}>
-            {loading ? (
-              <>
-                <Loader2 size={18} className="spinner" />
-                Authenticating...
-              </>
-            ) : (
-              'Sign In'
-            )}
+            {loading ? <Loader2 size={18} className="spinner" /> : 'Sign In'}
           </button>
         </form>
 

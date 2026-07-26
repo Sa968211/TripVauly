@@ -4,6 +4,7 @@
   "private": true,
   "description": "TripVault MERN Application - Root workspace",
   "scripts": {
+    "open": "powershell -Command \"Start-Process 'http://localhost:3000/dashboard'\"",
     "install:all": "npm install --prefix server && npm install --prefix client",
     "server": "npm start --prefix server",
     "client": "npm run dev --prefix client"

@@ -4,11 +4,7 @@ import axios from 'axios';
 import { User, Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 const Register = ({ onAuthSuccess }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -21,10 +17,7 @@ const Register = ({ onAuthSuccess }) => {
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
     setError('');
   };
 
@@ -55,23 +48,16 @@ const Register = ({ onAuthSuccess }) => {
 
       if (response.data.success) {
         setSuccessMsg('Registration successful! Logging you in...');
-        
         if (response.data.token) {
           localStorage.setItem('token', response.data.token);
           onAuthSuccess(response.data.token, response.data.user);
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 1000);
+          setTimeout(() => navigate('/dashboard'), 1000);
         } else {
-          setTimeout(() => {
-            navigate('/login');
-          }, 1500);
+          setTimeout(() => navigate('/login'), 1500);
         }
       }
     } catch (err) {
-      console.error('Registration failed:', err);
-      const message = err.response?.data?.message || 'Registration failed. Please try again.';
-      setError(message);
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -163,14 +149,7 @@ const Register = ({ onAuthSuccess }) => {
           </div>
 
           <button type="submit" className="btn btn-primary" disabled={loading} style={{ marginTop: '1rem' }}>
-            {loading ? (
-              <>
-                <Loader2 size={18} className="spinner" />
-                Creating Account...
-              </>
-            ) : (
-              'Register Account'
-            )}
+            {loading ? <Loader2 size={18} className="spinner" /> : 'Register Account'}
           </button>
         </form>
 

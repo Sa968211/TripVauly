@@ -12,7 +12,6 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem('token') || '');
   const [loading, setLoading] = useState(true);
 
-  // Verify active JWT token on app start
   useEffect(() => {
     const verifySession = async () => {
       const storedToken = localStorage.getItem('token');
@@ -33,7 +32,6 @@ function App() {
           setUser(response.data.user);
           setToken(storedToken);
         } else {
-          // Invalid token, clean up
           localStorage.removeItem('token');
           setUser(null);
           setToken('');
@@ -72,17 +70,14 @@ function App() {
               path="/"
               element={token ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />}
             />
-
             <Route
               path="/login"
               element={token ? <Navigate to="/dashboard" replace /> : <Login onAuthSuccess={handleAuthSuccess} />}
             />
-
             <Route
               path="/register"
               element={token ? <Navigate to="/dashboard" replace /> : <Register onAuthSuccess={handleAuthSuccess} />}
             />
-
             <Route
               path="/dashboard"
               element={
@@ -91,7 +86,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

@@ -5,17 +5,9 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "open": "powershell -Command \"Start-Process 'http://localhost:3000/dashboard'\""
   },
-  "keywords": [
-    "tripvault",
-    "express",
-    "mongodb",
-    "jwt",
-    "auth"
-  ],
-  "author": "TripVault Intern",
-  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",

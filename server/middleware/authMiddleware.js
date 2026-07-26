@@ -27,8 +27,6 @@ const protect = async (req, res, next) => {
         }
       }
 
-      // If in memory or token starts with mem_ or DB disconnected
-      // We accept decoded ID payload for active bearer sessions
       req.user = {
         id: decoded.id,
         _id: decoded.id,
