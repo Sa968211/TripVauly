@@ -1,59 +1,41 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const dotenv = require('dotenv');
-
-dotenv.config();
+const { MongoMemoryServer } = require('mongodb-memory-server');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/tripvault';
 
-app.use(cors());
+// Middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
+// MongoDB Connection Setup
 const connectDB = async () => {
   try {
-    await mongoose.connect(MONGO_URI, { serverSelectionTimeoutMS: 3000 });
-    console.log(`[MongoDB] Connected successfully to: ${MONGO_URI.includes('@') ? 'MongoDB Atlas' : MONGO_URI}`);
-  } catch (err) {
-    console.warn(`[MongoDB] Local/Primary Mongo not reachable (${err.message}). Starting In-Memory MongoDB Server...`);
-    try {
-      const { MongoMemoryServer } = require('mongodb-memory-server');
-      const mongod = await MongoMemoryServer.create();
-      const uri = mongod.getUri();
-      await mongoose.connect(uri);
-      console.log(`🚀 [MongoDB] Successfully connected to auto-provisioned In-Memory MongoDB at: ${uri}`);
-    } catch (fallbackErr) {
-      console.error('[MongoDB] Critical connection error:', fallbackErr.message);
+    let mongoUri = process.env.MONGO_URI;
+
+    // Fall back to in-memory MongoDB server if MONGO_URI is not set
+    if (!mongoUri) {
+      const mongoServer = await MongoMemoryServer.create();
+      mongoUri = mongoServer.getUri();
+      console.log('⚡ Using in-memory MongoDB Server for development');
     }
+
+    // Connect to Mongoose without deprecated options
+    await mongoose.connect(mongoUri);
+    console.log('🚀 MongoDB Connected Successfully');
+  } catch (err) {
+    console.error('❌ MongoDB Connection Error:', err.message);
+    process.exit(1);
   }
 };
 
 connectDB();
 
+// Route Mounts
 app.use('/api/auth', require('./routes/auth'));
+app.use('/api/trips', require('./routes/trips'));
 
-app.get('/', (req, res) => {
-  res.status(200).json({
-    name: 'TripVault API Server',
-    version: '1.0.0',
-    status: 'Running',
-    week: 1,
-    dbState: mongoose.connection.readyState === 1 ? 'Connected' : 'Disconnected',
-    endpoints: {
-      register: 'POST /api/auth/register',
-      login: 'POST /api/auth/login',
-      me: 'GET /api/auth/me (Protected)',
-    },
-  });
-});
-
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: 'Route not found' });
-});
-
-app.listen(PORT, () => {
-  console.log(`🚀 [TripVault Backend Server] running on http://localhost:${PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

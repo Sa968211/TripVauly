@@ -1,74 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import axios from 'axios';
-import Navbar from './components/Navbar';
-import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
+  const [token, setToken] = useState(localStorage.getItem('token') || null);
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token') || '');
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const verifySession = async () => {
-      const storedToken = localStorage.getItem('token');
-      if (!storedToken) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await axios.get('/api/auth/me', {
-          headers: {
-            Authorization: `Bearer ${storedToken}`,
-          },
-        });
-
-        if (response.data.success) {
-          setUser(response.data.user);
-          setToken(storedToken);
-        } else {
-          localStorage.removeItem('token');
-          setUser(null);
-          setToken('');
-        }
-      } catch (err) {
-        console.error('Session verification error:', err);
-        localStorage.removeItem('token');
-        setUser(null);
-        setToken('');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    verifySession();
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   const handleAuthSuccess = (newToken, userData) => {
+    localStorage.setItem('token', newToken);
     setToken(newToken);
     setUser(userData);
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    setToken('');
-    setUser(null);
-  };
-
   return (
     <Router>
-      <div className="app">
-        <Navbar user={user} onLogout={handleLogout} />
-        <main>
+      <div className="app-container">
+        <main className="main-content">
           <Routes>
             <Route
               path="/"
-              element={token ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />}
+              element={<Navigate to={token ? "/dashboard" : "/login"} replace />}
             />
             <Route
               path="/login"

@@ -1,15 +1,7 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Compass, LogOut, ShieldCheck } from 'lucide-react';
-
-const Navbar = ({ user, onLogout }) => {
-  const navigate = useNavigate();
-
   const handleLogout = () => {
     onLogout();
     navigate('/login');
   };
-
   return (
     <nav className="navbar">
       <div className="container nav-container">
@@ -19,7 +11,6 @@ const Navbar = ({ user, onLogout }) => {
           </div>
           <span>TripVault</span>
         </Link>
-
         <div className="nav-links">
           {user ? (
             <>
@@ -31,7 +22,8 @@ const Navbar = ({ user, onLogout }) => {
                 <ShieldCheck size={16} style={{ color: '#10b981' }} />
               </div>
               <button onClick={handleLogout} className="btn btn-outline" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
-                <LogOut size={16} /> Logout
+                <LogOut size={16} />
+                Logout
               </button>
             </>
           ) : (
@@ -49,5 +41,4 @@ const Navbar = ({ user, onLogout }) => {
     </nav>
   );
 };
-
 export default Navbar;

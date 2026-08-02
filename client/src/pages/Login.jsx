@@ -1,143 +1,97 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Mail, Lock, LogIn } from 'lucide-react';
 
-const Login = ({ onAuthSuccess }) => {
+function Login({ onAuthSuccess }) {
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [successMsg, setSuccessMsg] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const validateEmail = (email) => {
-    const re = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    return re.test(String(email).toLowerCase());
-  };
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError('');
-  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setSuccessMsg('');
-
-    if (!formData.email || !formData.password) {
-      setError('Please enter your email and password.');
-      return;
-    }
-
-    if (!validateEmail(formData.email)) {
-      setError('Invalid email address. Please enter a valid email format (e.g. user@example.com).');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const response = await axios.post('/api/auth/login', formData);
+      const res = await fetch('http://localhost:5000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
 
-      if (response.data.success) {
-        setSuccessMsg('Login successful! Redirecting to Dashboard...');
-        const token = response.data.token;
+      const data = await res.json();
 
-        localStorage.setItem('token', token);
-        onAuthSuccess(token, response.data.user);
-
-        setTimeout(() => navigate('/dashboard'), 800);
+      if (data.success) {
+        if (onAuthSuccess) onAuthSuccess(data.token, data.user);
+        navigate('/dashboard');
+      } else {
+        setError(data.message || 'Invalid email or password');
       }
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password.');
+      setError('Server connection failed. Make sure backend is running on port 5000.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container">
-      <div className="glass-card form-container">
-        <div className="form-header">
-          <h2>Welcome Back</h2>
-          <p>Sign in to access your TripVault journal</p>
+    <div style={{ maxWidth: '400px', margin: '60px auto', padding: '30px', border: '1px solid #e0e0e0', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', backgroundColor: '#ffffff' }}>
+      <h2 style={{ textAlign: 'center', marginBottom: '8px', color: '#1a1a1a' }}>Welcome Back</h2>
+      <p style={{ textAlign: 'center', color: '#666', fontSize: '14px', marginBottom: '24px' }}>Sign in to access your TripVault account</p>
+
+      {error && (
+        <div style={{ backgroundColor: '#ffebee', color: '#c62828', padding: '10px 14px', borderRadius: '6px', fontSize: '14px', marginBottom: '16px' }}>
+          {error}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit}>
+        <div style={{ marginBottom: '18px' }}>
+          <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500', color: '#333' }}>Email Address</label>
+          <div style={{ position: 'relative' }}>
+            <input
+              type="email"
+              required
+              placeholder="you@example.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              style={{ width: '100%', padding: '10px 12px 10px 38px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+            />
+            <Mail style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} size={18} />
+          </div>
         </div>
 
-        {error && (
-          <div className="alert alert-error">
-            <AlertCircle size={18} />
-            <span>{error}</span>
+        <div style={{ marginBottom: '24px' }}>
+          <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500', color: '#333' }}>Password</label>
+          <div style={{ position: 'relative' }}>
+            <input
+              type="password"
+              required
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              style={{ width: '100%', padding: '10px 12px 10px 38px', borderRadius: '6px', border: '1px solid #ccc', boxSizing: 'border-box' }}
+            />
+            <Lock style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} size={18} />
           </div>
-        )}
-
-        {successMsg && (
-          <div className="alert alert-success">
-            <CheckCircle2 size={18} />
-            <span>{successMsg}</span>
-          </div>
-        )}
-
-        <form onSubmit={handleSubmit} noValidate>
-          <div className="form-group">
-            <label htmlFor="email">Email Address</label>
-            <div className="input-wrapper">
-              <input
-                type="email"
-                id="email"
-                name="email"
-                className="form-control"
-                placeholder="john@example.com"
-                value={formData.email}
-                onChange={handleChange}
-                disabled={loading}
-                required
-              />
-              <Mail className="input-icon" size={18} />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="password">Password</label>
-            <div className="input-wrapper">
-              <input
-                type={showPassword ? 'text' : 'password'}
-                id="password"
-                name="password"
-                className="form-control"
-                placeholder="Enter your password"
-                value={formData.password}
-                onChange={handleChange}
-                disabled={loading}
-                required
-              />
-              <Lock className="input-icon" size={18} />
-              <button
-                type="button"
-                className="password-toggle"
-                onClick={() => setShowPassword(!showPassword)}
-                tabIndex={-1}
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ marginTop: '1rem' }}>
-            {loading ? <Loader2 size={18} className="spinner" /> : 'Sign In'}
-          </button>
-        </form>
-
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-          Don't have an account?{' '}
-          <Link to="/register" style={{ color: 'var(--primary)', fontWeight: 600, textDecoration: 'none' }}>
-            Register Now
-          </Link>
         </div>
-      </div>
+
+        <button
+          type="submit"
+          disabled={loading}
+          style={{ width: '100%', padding: '12px', background: '#2563eb', color: '#ffffff', border: 'none', borderRadius: '6px', fontWeight: '600', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+        >
+          <LogIn size={18} />
+          {loading ? 'Signing in...' : 'Sign In'}
+        </button>
+      </form>
+
+      <p style={{ marginTop: '20px', textAlign: 'center', fontSize: '14px', color: '#666' }}>
+        Don't have an account? <Link to="/register" style={{ color: '#2563eb', textDecoration: 'none', fontWeight: '500' }}>Register here</Link>
+      </p>
     </div>
   );
-};
+}
 
 export default Login;
